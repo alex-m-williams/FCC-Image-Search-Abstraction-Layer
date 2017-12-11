@@ -9,6 +9,7 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 const url = require('url');
+const https = require('https');
 
 //mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch
 const dburl = 'mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch';
@@ -17,7 +18,7 @@ const mongo = require('mongodb').MongoClient;
 //g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
 // const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
 const gSearch = 'www.google.com';
-const https = require('https');
+
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {

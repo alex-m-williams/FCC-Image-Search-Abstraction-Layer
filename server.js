@@ -16,8 +16,9 @@ const dburl = 'mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch';
 const mongo = require('mongodb').MongoClient;
 
 //g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
-const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
-//const gSearch = 'www.google.com';
+//const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&'
+//const gSearchFinalParam = '&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
+const gSearch = 'www.google.com';
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {
@@ -48,13 +49,16 @@ app.route('/')
 		  res.sendFile(process.cwd() + '/views/index.html');
     })
 
-app.route('/new')
+app.route('/api/imagesearch/*')
   .get((req, res) => {
+    let routePath = '/api/imagesearch/';
     let urlRequest = url.parse(req.url, true);
     let pathName = urlRequest.pathname;
-    let obj;
+    let desiredPath
     let bufferString = "";
     let imageArray = [];
+    let builtString = gSearch;
+    
     const imageReq = https.request(gSearch, (imageRes) => {
       imageRes.on('data', (chunk) => {
         bufferString += chunk;

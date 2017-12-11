@@ -9,12 +9,6 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 const url = require('url');
-const validateURL = require('valid-url');
-
-
-const dburl = 'mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener';
-const mongo = require('mongodb').MongoClient;
-
 
 
 if (!process.env.DISABLE_XORIGIN) {
@@ -41,23 +35,6 @@ app.route('/_api/package.json')
     });
   });
 
-let routes = 0;
-mongo.connect(dburl, (err, database) => {
-     if (err) throw err;
-    const myAwesomeDB = database.db('urlshortener')
-     let docs = myAwesomeDB.collection('urls');
-    let highestRoute = 0;
-    docs.find({}).toArray((err, result) => {
-      for (let i = 0; i < result.length; i++ ){
-         if (result[i].route > highestRoute) {
-           highestRoute = result[i].route;
-         }
-       }
-      routes = highestRoute;
-    });
-  database.close();
-});
-
 app.route('/')
     .get(function(req, res) {
 		  res.sendFile(process.cwd() + '/views/index.html');
@@ -68,24 +45,8 @@ app.route('/[0-9]*')
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
   let routeNum = pathName.slice(1, pathName.length);
-  mongo.connect(dburl, (err, database) => {
-     if (err) throw err;
-    const myAwesomeDB = database.db('urlshortener')
-     let docs = myAwesomeDB.collection('urls');
-    docs.find({}).toArray((err, result) => {
-       if (err) throw err;
-       for (let i = 0; i < result.length; i++ ){
-         if (result[i].route == routeNum) {
-           res.redirect(result[i].originalURL);
-            res.end();
-         }
-       }
-   });
-     database.close();
-  });
+
 })
-
-
 
 app.route('/new/*')
   .get((req, res) => {
@@ -93,24 +54,7 @@ app.route('/new/*')
   let pathName = urlRequest.pathname;
   let newRoutePath = "/new/";
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
-  routes += 1;
   let obj;
-  if (validateURL.isUri(ogURL)) {
-    obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
-    mongo.connect(dburl, (err, database) => {
-       if (err) throw err;
-      const myAwesomeDB = database.db('urlshortener')
-       let docs = myAwesomeDB.collection('urls');
-      let highestRoute = 0;
-      docs.insert(obj, (err, data) => {
-           if (err) throw err;
-           console.log(JSON.stringify(obj));
-       });
-       database.close();
-    });
-  } else {
-    obj = {error: "Not a valid URL entered. You must use http or https."};
-  }
   
   res.writeHead(200, {'Content-Type': 'application/json' });
   res.write(JSON.stringify(obj));

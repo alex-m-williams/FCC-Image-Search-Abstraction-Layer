@@ -53,14 +53,14 @@ app.route('/new')
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
   let obj;
+  let resObj = "";
   const imageReq = https.request(gSearch, (imageRes) => {
-    let resObj;
     imageRes.on('data', (chunk) => {
       resObj += chunk;
     });
     imageRes.on('end', function () {
       let finalObj = JSON.parse(resObj);
-      console.log(finalObj);
+      console.log(finalObj.kind);
       res.writeHead(200, {'Content-Type': 'application/json' });
       res.write(resObj);
       res.end();

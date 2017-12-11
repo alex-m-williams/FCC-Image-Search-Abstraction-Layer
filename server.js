@@ -16,9 +16,8 @@ const dburl = 'mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch';
 const mongo = require('mongodb').MongoClient;
 
 //g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
-// const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
-const gSearch = 'www.google.com';
-
+const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
+//const gSearch = 'www.google.com';
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {
@@ -55,6 +54,7 @@ app.route('/new')
   let pathName = urlRequest.pathname;
   let obj;
   let bufferString = "";
+  let imageArray = [];
   const imageReq = https.request(gSearch, (imageRes) => {
     imageRes.on('data', (chunk) => {
       bufferString += chunk;
@@ -62,7 +62,11 @@ app.route('/new')
     imageRes.on('end', function () {
       let finalObj = JSON.parse(bufferString);
       finalObj = finalObj.items;
-      console.log(finalObj.kind);
+      for (let i = 0; i < finalObj.length; i++) {
+        let 
+        let image = {url: finalObj[i].link, snippet: finalObj[i].snippet, thumbnail: , context: }
+        console.log(finalObj[i]);
+      }
       res.writeHead(200, {'Content-Type': 'application/json' });
       res.write(finalObj);
       res.end();

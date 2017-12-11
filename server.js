@@ -15,8 +15,8 @@ const dburl = 'mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch';
 const mongo = require('mongodb').MongoClient;
 
 //g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
-//const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
-const gSearch = 'www.google.com';
+const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
+// const gSearch = 'www.google.com';
 const https = require('https');
 
 if (!process.env.DISABLE_XORIGIN) {
@@ -53,11 +53,22 @@ app.route('/new')
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
   let obj;
-  obj = {}
+  const imageReq = https.request(gSearch, (imageRes) => {
+
+    imageRes.on('data', (d) => {
+      obj = Buffer.from(d);
+      process.stdout.write(obj);
+      res.writeHead(200, {'Content-Type': 'application/json' });
+      res.write(JSON.stringify(obj));
+      res.end();
+    });
+  });
+
+  imageReq.on('error', (e) => {
+    console.error(e);
+  });
+  imageReq.end();  
   
-  res.writeHead(200, {'Content-Type': 'application/json' });
-  res.write(JSON.stringify(obj));
-  res.end();
 });
 
 

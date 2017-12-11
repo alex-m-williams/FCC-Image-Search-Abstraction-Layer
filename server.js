@@ -62,14 +62,26 @@ app.route('/new')
     imageRes.on('end', function () {
       let finalObj = JSON.parse(bufferString);
       finalObj = finalObj.items;
-      for (let i = 0; i < finalObj.length; i++) {
-        let 
-        let image = {url: finalObj[i].link, snippet: finalObj[i].snippet, thumbnail: , context: }
-        console.log(finalObj[i]);
-      }
       res.writeHead(200, {'Content-Type': 'application/json' });
-      res.write(finalObj);
+      for (let i = 0; i < finalObj.length; i++) {
+        let image = {"url": finalObj[i].link, "snippet": finalObj[i].snippet, "thumbnail": finalObj[i].image.thumbnailLink, "context": finalObj[i].image.contextLink};
+        imageArray.push(JSON.stringify(image));
+      }
+      res.write(imageArray.toString());
       res.end();
+      mongo.connect(dburl, (err, database) => {
+         if (err) throw err;
+        const myAwesomeDB = database.db('fccimagesearch')
+         let docs = myAwesomeDB.collection('images');
+        docs.find({}).toArray((err, result) => {
+          for (let i = 0; i < result.length; i++ ){
+             if (result[i].route > highestRoute) {
+               highestRoute = result[i].route;
+             }
+           }
+      });
+    database.close();
+});
     });
   });
 

@@ -50,47 +50,47 @@ app.route('/')
 
 app.route('/new')
   .get((req, res) => {
-  let urlRequest = url.parse(req.url, true);
-  let pathName = urlRequest.pathname;
-  let obj;
-  let bufferString = "";
-  let imageArray = [];
-  const imageReq = https.request(gSearch, (imageRes) => {
-    imageRes.on('data', (chunk) => {
-      bufferString += chunk;
-    });
-    imageRes.on('end', function () {
-      let finalObj = JSON.parse(bufferString);
-      finalObj = finalObj.items;
-      res.writeHead(200, {'Content-Type': 'application/json' });
-      for (let i = 0; i < finalObj.length; i++) {
-        let image = {"url": finalObj[i].link, "snippet": finalObj[i].snippet, "thumbnail": finalObj[i].image.thumbnailLink, "context": finalObj[i].image.contextLink};
-        imageArray.push(JSON.stringify(image));
-      }
-      res.write(imageArray.toString());
-      res.end();
-      mongo.connect(dburl, (err, database) => {
-         if (err) throw err;
-        const myAwesomeDB = database.db('fccimagesearch')
-         let docs = myAwesomeDB.collection('images');
-        docs.find({}).toArray((err, result) => {
-          for (let i = 0; i < result.length; i++ ){
-             if (result[i].route > highestRoute) {
-               highestRoute = result[i].route;
-             }
-           }
+    let urlRequest = url.parse(req.url, true);
+    let pathName = urlRequest.pathname;
+    let obj;
+    let bufferString = "";
+    let imageArray = [];
+    const imageReq = https.request(gSearch, (imageRes) => {
+      imageRes.on('data', (chunk) => {
+        bufferString += chunk;
       });
-    database.close();
-});
+      imageRes.on('end', function () {
+        let finalObj = JSON.parse(bufferString);
+        // let latestSearch = finalObj.request.searchTerms;
+        // let newDate = new Date();
+        // let latestSearchObj = {"term": latestSearch, "when": newDate.getTime()};
+        finalObj = finalObj.items;
+        res.writeHead(200, {'Content-Type': 'application/json' });
+        for (let i = 0; i < finalObj.length; i++) {
+          let image = {"url": finalObj[i].link, "snippet": finalObj[i].snippet, "thumbnail": finalObj[i].image.thumbnailLink, "context": finalObj[i].image.contextLink};
+          imageArray.push(JSON.stringify(image));
+        }
+        // mongo.connect(dburl, (err, database) => {
+        //   if (err) throw err;
+        //   const myAwesomeDB = database.db('fccimagesearch')
+        //   let docs = myAwesomeDB.collection('s');
+        //   docs.insert(latestSearchObj, (err, data) => {
+        //      if (err) throw err;
+        //      console.log(JSON.stringify(latestSearchObj));
+        //    });
+        //   database.close();
+        // });
+        res.write(imageArray.toString());
+        res.end();
     });
-  });
 
-  imageReq.on('error', (e) => {
-    console.error(e);
-  });
-  imageReq.end();  
-  
+    imageReq.on('error', (e) => {
+      console.error(e);
+    });
+    imageReq.end(); 
 });
+});
+  
 
 
 

@@ -54,12 +54,15 @@ app.route('/new')
   let pathName = urlRequest.pathname;
   let obj;
   const imageReq = https.request(gSearch, (imageRes) => {
-
-    imageRes.on('data', (d) => {
-      obj = Buffer.from(d);
-      process.stdout.write(obj);
+    let resObj;
+    imageRes.on('data', (chunk) => {
+      resObj += chunk;
+    });
+    imageRes.on('end', function () {
+      let finalObj = JSON.parse(resObj);
+      console.log(finalObj);
       res.writeHead(200, {'Content-Type': 'application/json' });
-      res.write(JSON.stringify(obj));
+      res.write(resObj);
       res.end();
     });
   });

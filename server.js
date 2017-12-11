@@ -61,34 +61,51 @@ app.route('/new')
       });
       imageRes.on('end', function () {
         let finalObj = JSON.parse(bufferString);
-        // let latestSearch = finalObj.request.searchTerms;
-        // let newDate = new Date();
-        // let latestSearchObj = {"term": latestSearch, "when": newDate.getTime()};
+        let latestSearch = finalObj.queries.request[0].searchTerms;
+        let newDate = new Date();
+        let latestSearchObj = {"term": latestSearch, "when": newDate};
         finalObj = finalObj.items;
         res.writeHead(200, {'Content-Type': 'application/json' });
         for (let i = 0; i < finalObj.length; i++) {
           let image = {"url": finalObj[i].link, "snippet": finalObj[i].snippet, "thumbnail": finalObj[i].image.thumbnailLink, "context": finalObj[i].image.contextLink};
           imageArray.push(JSON.stringify(image));
         }
-        // mongo.connect(dburl, (err, database) => {
-        //   if (err) throw err;
-        //   const myAwesomeDB = database.db('fccimagesearch')
-        //   let docs = myAwesomeDB.collection('s');
-        //   docs.insert(latestSearchObj, (err, data) => {
-        //      if (err) throw err;
-        //      console.log(JSON.stringify(latestSearchObj));
-        //    });
-        //   database.close();
-        // });
+        mongo.connect(dburl, (err, database) => {
+          if (err) throw err;
+          const myAwesomeDB = database.db('fccimagesearch')
+          let docs = myAwesomeDB.collection('searches');
+          docs.insert(latestSearchObj, (err, data) => {
+             if (err) throw err;
+             console.log(JSON.stringify(latestSearchObj));
+           });
+          database.close();
+        });
         res.write(imageArray.toString());
         res.end();
+      });
     });
 
     imageReq.on('error', (e) => {
       console.error(e);
     });
     imageReq.end(); 
+  
 });
+
+app.route('/api/latest/imagesearch').get((req, res) => {
+  mongo.connect(dburl, (err, database) => {
+          if (err) throw err;
+          const myAwesomeDB = database.db('fccimagesearch')
+          let docs = myAwesomeDB.collection('searches');
+          let recentSearchArray = [];
+          docs.find({}).toArray((err, result) => {
+             if (err) throw err;
+             for (let i = 0; i < result.length; i++ ){
+                let searchObj = {term: result[i].te}
+             }
+           });
+          database.close();
+  });
 });
   
 

@@ -10,10 +10,35 @@ var express = require('express');
 var app = express();
 const url = require('url');
 
-//g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
+//mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch
+const dburl = 'mongodb://fcc:fcc@ds135926.mlab.com:35926/fccimagesearch';
+const mongo = require('mongodb').MongoClient;
 
+//g custom search api: AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg
 const gSearch = 'https://content.googleapis.com/customsearch/v1?cx=011903740374000541668%3Axiqnhvafoyy&q=cat&searchType=image&key=AIzaSyASRCH2YLWcpEDLQnuDal5Gean9WMhTGlg'
 
+const https = require('https');
+
+const options = {
+  hostname: 'encrypted.google.com',
+  port: 443,
+  path: '/',
+  method: 'GET'
+};
+
+const req = https.request(gSearch, (res) => {
+  console.log('statusCode:', res.statusCode);
+  console.log('headers:', res.headers);
+
+  res.on('data', (d) => {
+    process.stdout.write(d);
+  });
+});
+
+req.on('error', (e) => {
+  console.error(e);
+});
+req.end();
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {
@@ -44,21 +69,12 @@ app.route('/')
 		  res.sendFile(process.cwd() + '/views/index.html');
     })
 
-app.route('/[0-9]*')
-  .get(function(req, res) {
-  let urlRequest = url.parse(req.url, true);
-  let pathName = urlRequest.pathname;
-  let routeNum = pathName.slice(1, pathName.length);
-
-})
-
-app.route('/new/*')
+app.route('/new')
   .get((req, res) => {
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
-  let newRoutePath = "/new/";
-  let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
   let obj;
+  obj = {}
   
   res.writeHead(200, {'Content-Type': 'application/json' });
   res.write(JSON.stringify(obj));

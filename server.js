@@ -101,10 +101,15 @@ app.route('/api/latest/imagesearch').get((req, res) => {
           docs.find({}).toArray((err, result) => {
              if (err) throw err;
              for (let i = 0; i < result.length; i++ ){
-                let searchObj = {term: result[i].te}
+               console.log(result[i]);
+                let searchObj = {term: result[i].term, when: result[i].when};
+               recentSearchArray.push(JSON.stringify(searchObj));
              }
-           });
-          database.close();
+            res.writeHead(200, {'Content-Type': 'application/json' });
+            res.write(recentSearchArray.toString());
+            res.end();
+            database.close();
+           });   
   });
 });
   
